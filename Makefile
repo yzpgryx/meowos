@@ -50,11 +50,17 @@ env:
 	@echo "CPU CORES (-j): $(NPROC)"
 	@echo "SHELL:          $(SHELL)"
 
-menuconfig:
-	mkdir -p $(BUILD_DIR)/meowos-config/lxdialog
-	PKG_CONFIG_PATH="" make CC="/usr/bin/gcc" HOSTCC="/usr/bin/gcc" \
-			obj=$(BUILD_DIR)/meowos-config -C support/kconfig -f Makefile.br mconf
-	@$(BUILD_DIR)/meowos-config/mconf Config.in
+MCONF := $(BUILD_DIR)/meowos-config/mconf
+$(MCONF):
+	@echo "🏗️  [MeowOS] Building Kconfig Binary..."
+	@mkdir -p $(BUILD_DIR)/meowos-config/lxdialog
+	@PKG_CONFIG_PATH="" $(MAKE) CC="/usr/bin/gcc" HOSTCC="/usr/bin/gcc" \
+		obj=$(BUILD_DIR)/meowos-config \
+		-C support/kconfig -f Makefile.br mconf
+
+menuconfig: $(MCONF)
+	@echo "🚀 [MeowOS] Launching configuration UI..."
+	@$(MCONF) Config.in
 
 clean:
 	@echo "🧹 清理所有编译缓存与产物..."
