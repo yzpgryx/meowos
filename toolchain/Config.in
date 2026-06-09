@@ -1,0 +1,62 @@
+menu "Toolchain Configuration"
+
+choice
+    prompt "Toolchain Type"
+    default MEOW_TOOLCHAIN_INTERNAL
+    help
+      Select whether to build a toolchain from scratch or use an existing one.
+
+    config MEOW_TOOLCHAIN_INTERNAL
+        bool "Build internal toolchain"
+        help
+          Build a cross-compiler from source.
+          This ensures a fully reproducible and managed environment.
+
+    config MEOW_TOOLCHAIN_EXTERNAL
+        bool "Use external toolchain"
+        help
+          Use a pre-built cross-compiler already installed on your system.
+          You will need to provide the path to the toolchain.
+
+endchoice
+
+# 只有选择了外部工具链，才会显示路径配置项
+if MEOW_TOOLCHAIN_EXTERNAL
+
+    config MEOW_TOOLCHAIN_EXTERNAL_PATH
+        string "External toolchain path"
+        default "/usr/local/bin"
+        help
+          Enter the absolute path to your external toolchain's 'bin' directory.
+
+    config MEOW_TOOLCHAIN_EXTERNAL_PREFIX
+        string "External toolchain prefix"
+        default "x86_64-linux-gnu-"
+        help
+          The prefix used for the compiler (e.g., arm-linux-gnueabihf-).
+
+endif
+
+# 内部构建选项：只有选择了内部构建，才显示相关的配置项
+if MEOW_TOOLCHAIN_INTERNAL
+
+    config MEOW_BINUTILS_VERSION
+    string "Binutils version"
+    default "2.43.1"
+
+    choice
+        prompt "C Library"
+        default MEOW_LIBC_GLIBC
+        help
+          Select the C library to use for your internal toolchain.
+
+        config MEOW_LIBC_GLIBC
+            bool "glibc"
+        config MEOW_LIBC_MUSL
+            bool "musl"
+    endchoice
+    source toolchain/binutils/Config.in
+
+endif
+
+endmenu

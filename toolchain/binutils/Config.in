@@ -1,0 +1,7 @@
+if MEOW_TOOLCHAIN_INTERNAL
+
+config MEOW_TOOLCHAIN_VENDOR
+string "custom toolchain vendor name"
+default "meow"
+
+endif
