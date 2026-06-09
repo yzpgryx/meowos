@@ -4,7 +4,7 @@
 export OUTPUT_DIR  := $(TOPDIR)/output
 export HOST_DIR    := $(OUTPUT_DIR)/host
 export HOST_BIN    := $(HOST_DIR)/bin
-export BUILD_DIR   := $(OUTPUT_DIR)/build_dir
+export BUILD_DIR   := $(OUTPUT_DIR)/build
 export SYSROOT     := $(OUTPUT_DIR)/target-rootfs
 
 # 2. 引入手写的 Kconfig 配置文件（允许文件不存在时保底）

@@ -4,6 +4,12 @@ export TOPDIR:=${CURDIR}
 
 include rules.mk
 
+MEOWOS_CONFIG := $(TOPDIR)/.config
+noconfig_targets := menuconfig syncconfig
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ -include $(MEOWOS_CONFIG)
+endif
+
 # 自动扫描 packages 目录下所有的子 Makefile (例如 packages/utils/strace/Makefile)
 PACKAGE_DIRS := $(dir $(wildcard packages/*/* /Makefile))
 
@@ -50,7 +56,17 @@ env:
 	@echo "CPU CORES (-j): $(NPROC)"
 	@echo "SHELL:          $(SHELL)"
 
+COMMON_CONFIG_ENV = KCONFIG_AUTOCONFIG=$(BUILD_DIR)/meowos-config/auto.conf \
+                    KCONFIG_AUTOHEADER=$(BUILD_DIR)/meowos-config/autoconf.h \
+					KCONFIG_TRISTATE=$(BUILD_DIR)/meowos-config/tristate.config
+
+CONF := $(BUILD_DIR)/meowos-config/conf
 MCONF := $(BUILD_DIR)/meowos-config/mconf
+
+oldconfig syncconfig olddefconfig: $(CONF)
+	@echo "🔄 [MeowOS] Kconfig action: $@"
+	@$(COMMON_CONFIG_ENV) $(CONF) --$@ Config.in
+
 $(MCONF):
 	@echo "🏗️  [MeowOS] Building Kconfig Binary..."
 	@mkdir -p $(BUILD_DIR)/meowos-config/lxdialog
@@ -58,9 +74,16 @@ $(MCONF):
 		obj=$(BUILD_DIR)/meowos-config \
 		-C support/kconfig -f Makefile.br mconf
 
+$(CONF): $(MCONF)
+	@echo "🏗️  [MeowOS] Building Kconfig conf tool..."
+	@PKG_CONFIG_PATH="" $(MAKE) CC="/usr/bin/gcc" HOSTCC="/usr/bin/gcc" \
+		obj=$(BUILD_DIR)/meowos-config \
+		-C support/kconfig -f Makefile.br conf
+
 menuconfig: $(MCONF)
 	@echo "🚀 [MeowOS] Launching configuration UI..."
 	@$(MCONF) Config.in
+
 
 clean:
 	@echo "🧹 清理所有编译缓存与产物..."

@@ -2,7 +2,7 @@
 
 mainmenu "MeowOS Configuration"
 
-config MEOWOS_VERSION
+config MEOW_VERSION
     string "MeowOS Version"
     default "0.1.0-alpha"
     help
@@ -10,16 +10,18 @@ config MEOWOS_VERSION
 
 menu "System Configuration"
 
-    config TARGET_ARCH
+    config MEOW_TARGET_ARCH
         string "Target Architecture"
         default "x86_64"
         help
           The architecture your OS is targeting.
 
-    config ENABLE_DEBUG
+    config MEOW_ENABLE_DEBUG
         bool "Enable Debug Symbols"
         default y
         help
           Compile packages with debug symbols (-g).
 
 endmenu
+
+source toolchain/Config.in
